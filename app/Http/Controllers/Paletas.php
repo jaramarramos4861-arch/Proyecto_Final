@@ -11,7 +11,10 @@ class Paletas extends Controller
      */
     public function index()
     {
-        //
+         return view('Paleta-index')
+        ->with([
+            'paletas' => Paletas::all()
+        ]);
     }
 
     /**
@@ -19,7 +22,7 @@ class Paletas extends Controller
      */
     public function create()
     {
-        //
+        return view('Paleta-create');
     }
 
     /**
