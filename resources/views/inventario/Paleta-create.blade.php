@@ -8,6 +8,7 @@
 <body>
     <h1>Ingreso de prodcutos</h1>
 
+<form action="{{ route('paletas.store') }}" method="POST">
 
 @csrf
 

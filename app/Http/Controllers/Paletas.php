@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inventario;
 use Illuminate\Http\Request;
 
 class Paletas extends Controller
@@ -11,9 +12,9 @@ class Paletas extends Controller
      */
     public function index()
     {
-         return view('Paleta-index')
+         return view('inventario.Paleta-index')
         ->with([
-            'paletas' => Paletas::all()
+            'productos' => Inventario::all()
         ]);
     }
 
@@ -22,7 +23,7 @@ class Paletas extends Controller
      */
     public function create()
     {
-        return view('Paleta-create');
+        return view('inventario.Paleta-create');
     }
 
     /**
@@ -30,7 +31,19 @@ class Paletas extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre' => 'required',
+            'precio' => 'required|numeric',
+            'stock' => 'required|numeric'
+        ]);
+
+        $Producto = new Inventario();
+        $Producto->nombre = $request->nombre;
+        $Producto->precio = $request->precio;
+        $Producto->stock = $request->stock;
+        $Producto->save();
+
+        return redirect()->route('paletas.index');
     }
 
     /**
