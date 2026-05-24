@@ -6,7 +6,7 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Ingreso de prodcutos</h1>
+    <h1>Ingreso de productos</h1>
 
 <form action="{{ route('paletas.store') }}" method="POST">
 
