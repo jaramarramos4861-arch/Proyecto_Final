@@ -42,11 +42,11 @@
 
 
 
-{{-- <a href="{{ route('paletas.show', $oferta) }}"> --}}
+{-- <a href="{{ route('paletas.show', $producto) }}"> --}
 
-{{-- Ver detalle --}}
+{-- Ver detalle --}
 
-{{-- </a> --}}
+{-- </a> --}
 
 
 

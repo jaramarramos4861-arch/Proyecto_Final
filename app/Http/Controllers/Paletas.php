@@ -49,32 +49,50 @@ class Paletas extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Inventario $paleta)
     {
-        //
+        return view('inventario.Paleta-show')
+        ->with([
+            'paleta' => $paleta
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Inventario $paleta)
     {
-        //
+        return view('inventario.Paleta-edit')
+        ->with([
+            'paleta' => $paleta
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Inventario $Producto)
     {
-        //
+        $request->validate([
+            'nombre' => 'required',
+            'precio' => 'required|numeric',
+            'stock' => 'required|numeric'
+        ]);
+
+        $Producto->nombre = $request->nombre;
+        $Producto->precio = $request->precio;
+        $Producto->stock = $request->stock;
+        $Producto->save();
+
+        return redirect()->route('paletas.show', $Producto);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Inventario $paleta)
     {
-        //
+        $paleta->delete();
+        return redirect()->route('paletas.index');
     }
 }
