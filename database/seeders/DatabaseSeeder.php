@@ -15,11 +15,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Crear usuario administrador
+        User::create([
+            'name' => 'Administrador',
+            'email' => 'admin@paleteria.com',
+            'password' => bcrypt('admin123'),
+            'rol' => 'admin',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Crear usuario cliente de prueba
+        User::create([
+            'name' => 'Cliente Prueba',
+            'email' => 'cliente@paleteria.com',
+            'password' => bcrypt('cliente123'),
+            'rol' => 'cliente',
+        ]);
+
+        // Ejecutar los seeders de categorías y productos
+        $this->call([
+            CategoriaSeeder::class,
+            InventarioSeeder::class,
         ]);
     }
 }
