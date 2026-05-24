@@ -3,8 +3,10 @@
 use App\Http\Controllers\Paletas;
 use Illuminate\Support\Facades\Route;
 
-Route::resource('paletas', Paletas::class);
-
+// Ruta de bienvenida
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Rutas CRUD para paletas
+Route::resource('paletas', Paletas::class);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inventario;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 
 class Paletas extends Controller
@@ -12,9 +13,9 @@ class Paletas extends Controller
      */
     public function index()
     {
-         return view('inventario.Paleta-index')
+        return view('inventario.Paleta-index')
         ->with([
-            'productos' => Inventario::all()
+            'productos' => Inventario::with('categoria')->get()
         ]);
     }
 
@@ -23,7 +24,12 @@ class Paletas extends Controller
      */
     public function create()
     {
-        return view('inventario.Paleta-create');
+        $categorias = Categoria::all();
+        
+        return view('inventario.Paleta-create')
+        ->with([
+            'categorias' => $categorias
+        ]);
     }
 
     /**
@@ -34,13 +40,15 @@ class Paletas extends Controller
         $request->validate([
             'nombre' => 'required',
             'precio' => 'required|numeric',
-            'stock' => 'required|numeric'
+            'stock' => 'required|numeric',
+            'categoria_id' => 'required|exists:categorias,id'
         ]);
 
         $Producto = new Inventario();
         $Producto->nombre = $request->nombre;
         $Producto->precio = $request->precio;
         $Producto->stock = $request->stock;
+        $Producto->categoria_id = $request->categoria_id;
         $Producto->save();
 
         return redirect()->route('paletas.index');
@@ -49,32 +57,55 @@ class Paletas extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Inventario $paleta)
     {
-        //
+        return view('inventario.Paleta-show')
+        ->with([
+            'paleta' => $paleta->load('categoria')
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Inventario $paleta)
     {
-        //
+        $categorias = Categoria::all();
+        
+        return view('inventario.Paleta-edit')
+        ->with([
+            'paleta' => $paleta,
+            'categorias' => $categorias
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Inventario $Producto)
     {
-        //
+        $request->validate([
+            'nombre' => 'required',
+            'precio' => 'required|numeric',
+            'stock' => 'required|numeric',
+            'categoria_id' => 'required|exists:categorias,id'
+        ]);
+
+        $Producto->nombre = $request->nombre;
+        $Producto->precio = $request->precio;
+        $Producto->stock = $request->stock;
+        $Producto->categoria_id = $request->categoria_id;
+        $Producto->save();
+
+        return redirect()->route('paletas.show', $Producto);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Inventario $paleta)
     {
-        //
+        $paleta->delete();
+        return redirect()->route('paletas.index');
     }
 }
