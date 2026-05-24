@@ -70,8 +70,44 @@
     </table>
 @endif
 
+<<<<<<< HEAD
 <br>
 <a href="{{ url('/') }}" class="btn btn-primary">Volver al inicio</a>
 @endsection
+=======
+
+<ul>
+
+@foreach ($productos as $producto)
+
+
+
+<li>
+
+
+
+{{ $producto->nombre }} - {{ $producto->precio }} - {{ $producto->stock }}
+
+
+
+{-- <a href="{{ route('paletas.show', $producto) }}"> --}
+
+{-- Ver detalle --}
+
+{-- </a> --}
+
+
+
+</li>
+
+
+
+@endforeach
+
+</ul>
+
+
+
+>>>>>>> upstream/main
 </body>
 </html>

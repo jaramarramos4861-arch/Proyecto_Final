@@ -61,7 +61,11 @@ class Paletas extends Controller
     {
         return view('inventario.Paleta-show')
         ->with([
+<<<<<<< HEAD
             'paleta' => $paleta->load('categoria')
+=======
+            'paleta' => $paleta
+>>>>>>> upstream/main
         ]);
     }
 
@@ -70,12 +74,18 @@ class Paletas extends Controller
      */
     public function edit(Inventario $paleta)
     {
+<<<<<<< HEAD
         $categorias = Categoria::all();
         
         return view('inventario.Paleta-edit')
         ->with([
             'paleta' => $paleta,
             'categorias' => $categorias
+=======
+        return view('inventario.Paleta-edit')
+        ->with([
+            'paleta' => $paleta
+>>>>>>> upstream/main
         ]);
     }
 
@@ -87,14 +97,21 @@ class Paletas extends Controller
         $request->validate([
             'nombre' => 'required',
             'precio' => 'required|numeric',
+<<<<<<< HEAD
             'stock' => 'required|numeric',
             'categoria_id' => 'required|exists:categorias,id'
+=======
+            'stock' => 'required|numeric'
+>>>>>>> upstream/main
         ]);
 
         $Producto->nombre = $request->nombre;
         $Producto->precio = $request->precio;
         $Producto->stock = $request->stock;
+<<<<<<< HEAD
         $Producto->categoria_id = $request->categoria_id;
+=======
+>>>>>>> upstream/main
         $Producto->save();
 
         return redirect()->route('paletas.show', $Producto);
