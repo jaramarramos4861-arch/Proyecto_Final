@@ -14,6 +14,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #faf7f2;
+            min-height: 100vh;
         }
         
         .header {
@@ -70,10 +71,6 @@
             text-decoration: none;
             color: #5c3a21;
             font-weight: 500;
-        }
-        
-        .nav a:hover {
-            color: #b8860b;
         }
         
         .btn-carrito {
@@ -136,12 +133,12 @@
         }
         
         .hero h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: #5c3a21;
         }
         
         .hero p {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: #b8860b;
             font-style: italic;
         }
@@ -151,7 +148,7 @@
         }
         
         .categoria-titulo {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             color: #5c3a21;
             border-left: 5px solid #b8860b;
             padding-left: 1rem;
@@ -178,20 +175,30 @@
         
         .producto-imagen {
             width: 100%;
-            height: 180px;
+            height: 200px;
             background: #f0ebe3;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            overflow: hidden;
+        }
+        
+        .producto-imagen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .producto-imagen .emoji-placeholder {
+            font-size: 4rem;
         }
         
         .producto-info {
-            padding: 1rem;
+            padding: 1.2rem;
         }
         
         .producto-nombre {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #5c3a21;
         }
@@ -203,7 +210,7 @@
         }
         
         .producto-precio {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #b8860b;
             margin: 0.5rem 0;
@@ -214,14 +221,25 @@
             background: #5c3a21;
             color: white;
             border: none;
-            padding: 8px;
+            padding: 10px;
             border-radius: 40px;
             cursor: pointer;
-            margin-top: 0.5rem;
+            font-weight: 600;
         }
         
         .btn-agregar:hover {
             background: #b8860b;
+        }
+        
+        .btn-agregar-deshabilitado {
+            width: 100%;
+            background: #8b7355;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: not-allowed;
         }
         
         .btn-admin-accion {
@@ -244,18 +262,25 @@
             font-size: 0.7rem;
         }
         
+        .acciones-admin {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
         .mensaje-exito {
             background: #e8f5e9;
             color: #2e7d32;
             padding: 1rem;
             border-radius: 12px;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         
         footer {
             text-align: center;
             padding: 2rem;
             color: #8b7355;
+            font-size: 0.8rem;
             border-top: 1px solid #e0d6cc;
             margin-top: 3rem;
         }
@@ -278,8 +303,9 @@
         </div>
         <div class="nav">
             <a href="{{ route('home') }}">🍦 Productos</a>
+            
             @auth
-                <a href="{{ route('carrito.index') }}" class="btn-carrito">🛒 Carrito</a>
+                <a href="{{ route('carrito.index') }}" class="btn-carrito">🛒 Mi Carrito</a>
                 @if(Auth::user()->rol == 'admin')
                     <div class="dropdown-admin">
                         <a href="#" class="btn-admin">⚙️ Admin ▼</a>
@@ -329,30 +355,41 @@
             <div class="productos-grid">
                 @foreach($productosCat as $producto)
                 <div class="producto-card">
-                    <div class="producto-imagen">🍦</div>
+                    <div class="producto-imagen">
+                        @if($producto->imagen && file_exists(public_path('images/'.$producto->imagen)))
+                            <img src="{{ asset('images/'.$producto->imagen) }}" alt="{{ $producto->nombre }}">
+                        @else
+                            <span class="emoji-placeholder">🍦</span>
+                        @endif
+                    </div>
                     <div class="producto-info">
                         <div class="producto-nombre">{{ $producto->nombre }}</div>
                         <div class="producto-categoria">{{ $producto->categoria->name ?? '' }}</div>
                         <div class="producto-precio">${{ number_format($producto->precio, 2) }}</div>
                         
                         @auth
-                            <form action="{{ route('carrito.agregar', $producto->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn-agregar">🛒 Agregar</button>
-                            </form>
+                            @if($producto->stock > 0)
+                                <form action="{{ route('carrito.agregar', $producto->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn-agregar">🛒 Agregar al carrito</button>
+                                </form>
+                            @else
+                                <button class="btn-agregar-deshabilitado" disabled>❌ Agotado</button>
+                            @endif
                             
                             @if(Auth::user()->rol == 'admin')
-                            <div style="display: flex; gap: 8px; margin-top: 10px;">
-                                <a href="{{ route('paletas.edit', $producto->id) }}" class="btn-admin-accion">✏️ Editar</a>
-                                <form action="{{ route('paletas.destroy', $producto->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Eliminar {{ $producto->nombre }}?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-admin-eliminar">🗑️ Eliminar</button>
-                                </form>
-                            </div>
+                                <div class="acciones-admin">
+                                    <a href="{{ route('paletas.edit', $producto->id) }}" class="btn-admin-accion">✏️ Editar</a>
+                                    <form action="{{ route('paletas.destroy', $producto->id) }}" method="POST" onsubmit="return confirm('¿Eliminar?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-admin-eliminar">🗑️ Eliminar</button>
+                                    </form>
+                                    <a href="{{ route('paletas.show', $producto->id) }}" class="btn-admin-accion" style="background:#5c3a21;">👁️ Ver</a>
+                                </div>
                             @endif
                         @else
-                            <button class="btn-agregar" onclick="alert('Inicia sesión para comprar')">🔐 Comprar</button>
+                            <button class="btn-agregar" onclick="alert('Inicia sesión para comprar')">🔐 Inicia sesión</button>
                         @endauth
                     </div>
                 </div>
@@ -365,6 +402,7 @@
 
 <footer>
     <p>El Rincón de Michoacán - Paletería Artesanal</p>
+    <p>"Creados para refrescarte el alma"</p>
 </footer>
 
 </body>

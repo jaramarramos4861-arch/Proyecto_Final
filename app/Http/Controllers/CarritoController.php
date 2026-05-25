@@ -9,11 +9,6 @@ use Illuminate\Support\Facades\Session;
 
 class CarritoController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
         $carrito = Session::get('carrito', []);
@@ -34,10 +29,18 @@ class CarritoController extends Controller
             return redirect()->back()->with('error', 'Producto no encontrado');
         }
         
+        if ($producto->stock <= 0) {
+            return redirect()->back()->with('error', 'Producto agotado');
+        }
+        
         $carrito = Session::get('carrito', []);
         
         if (isset($carrito[$id])) {
-            $carrito[$id]['cantidad']++;
+            if ($carrito[$id]['cantidad'] < $producto->stock) {
+                $carrito[$id]['cantidad']++;
+            } else {
+                return redirect()->back()->with('error', 'No hay suficiente stock');
+            }
         } else {
             $carrito[$id] = [
                 'nombre' => $producto->nombre,
@@ -50,19 +53,26 @@ class CarritoController extends Controller
         
         Session::put('carrito', $carrito);
         
-        return redirect()->back()->with('success', 'Producto agregado al carrito');
+        return redirect()->back()->with('success', $producto->nombre . ' agregado al carrito');
     }
 
     public function actualizar(Request $request, $id)
     {
         $carrito = Session::get('carrito', []);
+        $producto = Inventario::find($id);
         
-        if (isset($carrito[$id])) {
-            $carrito[$id]['cantidad'] = $request->cantidad;
-            Session::put('carrito', $carrito);
+        if (isset($carrito[$id]) && $producto) {
+            $nuevaCantidad = $request->cantidad;
+            if ($nuevaCantidad <= $producto->stock && $nuevaCantidad > 0) {
+                $carrito[$id]['cantidad'] = $nuevaCantidad;
+                Session::put('carrito', $carrito);
+                return redirect()->route('carrito.index')->with('success', 'Carrito actualizado');
+            } else {
+                return redirect()->back()->with('error', 'Cantidad no disponible');
+            }
         }
         
-        return redirect()->route('carrito.index')->with('success', 'Carrito actualizado');
+        return redirect()->route('carrito.index')->with('error', 'Producto no encontrado');
     }
 
     public function eliminar($id)
@@ -83,6 +93,19 @@ class CarritoController extends Controller
         
         if (empty($carrito)) {
             return redirect()->route('carrito.index')->with('error', 'El carrito está vacío');
+        }
+        
+        foreach ($carrito as $id => $item) {
+            $producto = Inventario::find($id);
+            if (!$producto || $producto->stock < $item['cantidad']) {
+                return redirect()->route('carrito.index')->with('error', 'Stock insuficiente para ' . $item['nombre']);
+            }
+        }
+        
+        foreach ($carrito as $id => $item) {
+            $producto = Inventario::find($id);
+            $producto->stock -= $item['cantidad'];
+            $producto->save();
         }
         
         Session::forget('carrito');

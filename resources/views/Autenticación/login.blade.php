@@ -208,7 +208,7 @@
     </div>
 
     <div class="productos-link">
-        <a href="{{ route('productos.index') }}">🍦 Ver catálogo de productos sin iniciar sesión →</a>
+        <a href="{{ route('productos.index') }}"> Ver catálogo de productos sin iniciar sesión →</a>
     </div>
 </div>
 
