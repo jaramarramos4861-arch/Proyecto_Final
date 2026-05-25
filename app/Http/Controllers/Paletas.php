@@ -5,36 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Inventario;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Paletas extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return view('inventario.Paleta-index')
-        ->with([
-            'productos' => Inventario::with('categoria')->get()
-        ]);
+        $productos = Inventario::with('categoria')->get();
+        return view('inventario.Paleta-index', compact('productos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $categorias = Categoria::all();
-        
-        return view('inventario.Paleta-create')
-        ->with([
-            'categorias' => $categorias
-        ]);
+        return view('inventario.Paleta-create', compact('categorias'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -44,68 +30,47 @@ class Paletas extends Controller
             'categoria_id' => 'required|exists:categorias,id'
         ]);
 
-        $Producto = new Inventario();
-        $Producto->nombre = $request->nombre;
-        $Producto->precio = $request->precio;
-        $Producto->stock = $request->stock;
-        $Producto->categoria_id = $request->categoria_id;
-        $Producto->save();
-
-        return redirect()->route('paletas.index');
+        Inventario::create($request->all());
+        return redirect()->route('paletas.index')->with('success', 'Producto creado');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Inventario $paleta)
     {
-        return view('inventario.Paleta-show')
-        ->with([
-            'paleta' => $paleta->load('categoria')
-        ]);
+        if (!Auth::check() || Auth::user()->rol !== 'admin') {
+            return redirect('/')->with('error', 'No tienes acceso');
+        }
+        return view('inventario.Paleta-show', compact('paleta'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Inventario $paleta)
     {
         $categorias = Categoria::all();
-        
-        return view('inventario.Paleta-edit')
-        ->with([
-            'paleta' => $paleta,
-            'categorias' => $categorias
-        ]);
+        return view('inventario.Paleta-edit', compact('paleta', 'categorias'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Inventario $Producto)
-    {
-        $request->validate([
-            'nombre' => 'required',
-            'precio' => 'required|numeric',
-            'stock' => 'required|numeric',
-            'categoria_id' => 'required|exists:categorias,id'
-        ]);
+    public function update(Request $request, Inventario $paleta)
+{
+    $request->validate([
+        'nombre' => 'required',
+        'precio' => 'required|numeric',
+        'stock' => 'required|numeric',
+        'categoria_id' => 'required|exists:categorias,id'
+    ]);
+       $paleta->update([
+        'nombre' => $request->nombre,
+        'precio' => $request->precio,
+        'stock' => $request->stock,
+        'categoria_id' => $request->categoria_id,
+        'imagen' => $request->imagen,
+        'descripcion' => $request->descripcion
+    ]);
 
-        $Producto->nombre = $request->nombre;
-        $Producto->precio = $request->precio;
-        $Producto->stock = $request->stock;
-        $Producto->categoria_id = $request->categoria_id;
-        $Producto->save();
+    return redirect()->route('paletas.show', $paleta)->with('success', 'Producto actualizado correctamente');
+}
 
-        return redirect()->route('paletas.show', $Producto);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Inventario $paleta)
-    {
-        $paleta->delete();
-        return redirect()->route('paletas.index');
-    }
+{
+    $paleta->delete();
+    return redirect()->route('paletas.index')->with('success', 'Producto eliminado correctamente');
+}
 }

@@ -63,12 +63,12 @@ class AuthController extends Controller
             'telefono' => $request->telefono,
             'direccion' => $request->direccion,
             'password' => Hash::make($request->password),
-            'rol' => 'cliente'
+            'rol' => $request->email === 'admin@paleteriarincon.com' ? 'admin' : 'cliente'
         ]);
 
         Auth::login($user);
 
-        return redirect('/productos');
+        return redirect()->route('productos.index');
     }
 
     // Cerrar sesión

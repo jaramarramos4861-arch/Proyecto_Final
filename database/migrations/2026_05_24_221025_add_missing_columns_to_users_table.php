@@ -9,20 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Verificar y agregar SOLO si NO existen
             if (!Schema::hasColumn('users', 'apellidos')) {
-                $table->string('apellidos')->nullable()->after('name');
+                $table->string('apellidos')->nullable();
             }
-            
             if (!Schema::hasColumn('users', 'telefono')) {
-                $table->string('telefono')->nullable()->after('email');
+                $table->string('telefono')->nullable();
             }
-            
             if (!Schema::hasColumn('users', 'direccion')) {
-                $table->string('direccion')->nullable()->after('telefono');
+                $table->string('direccion')->nullable();
             }
-            
-            // NOTA: NO agregamos 'rol' porque ya existe en tu migración original
         });
     }
 

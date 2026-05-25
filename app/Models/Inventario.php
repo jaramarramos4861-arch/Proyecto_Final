@@ -13,10 +13,10 @@ class Inventario extends Model
         'precio', 
         'stock',
         'imagen',
+        'descripcion',
         'categoria_id'
     ];
 
-    // Relación con categoría
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
